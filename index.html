@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Spend</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg: #f7f7f5;
+    --surface: #ffffff;
+    --border: #e8e8e4;
+    --text: #1a1a1a;
+    --text-muted: #888;
+    --accent: #2d6a4f;
+    --accent-light: #d8f3dc;
+    --accent-mid: #74c69d;
+    --danger: #e63946;
+    --font: 'Georgia', serif;
+    --mono: 'Courier New', monospace;
+    --radius: 12px;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .app-title {
+    font-size: 22px;
+    font-weight: normal;
+    letter-spacing: -0.5px;
+    color: var(--accent);
+  }
+  .month-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+  }
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 3px;
+  }
+  .nav-tab {
+    flex: 1;
+    text-align: center;
+    padding: 7px 4px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font);
+    transition: all 0.15s;
+  }
+  .nav-tab.active {
+    background: var(--surface);
+    color: var(--accent);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  /* VIEWS */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ===== LOG VIEW ===== */
+  .log-view { padding: 16px; }
+
+  .amount-display {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .amount-value {
+    font-size: 52px;
+    color: var(--accent);
+    font-family: var(--mono);
+    letter-spacing: -2px;
+    line-height: 1;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .amount-value.empty { color: var(--border); }
+  .amount-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  /* NUMPAD */
+  .numpad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .num-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    font-size: 22px;
+    cursor: pointer;
+    font-family: var(--mono);
+    color: var(--text);
+    transition: background 0.1s;
+    -webkit-user-select: none;
+  }
+  .num-btn:active { background: var(--accent-light); }
+  .num-btn.del { font-size: 18px; color: var(--danger); }
+  .num-btn.dot { font-size: 24px; }
+
+  /* CATEGORY GRID */
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    font-family: var(--mono);
+  }
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .cat-btn {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 6px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text);
+    font-family: var(--font);
+    line-height: 1.2;
+    transition: all 0.15s;
+    -webkit-user-select: none;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cat-btn:active, .cat-btn.selected {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* SAVE BUTTON */
+  .save-btn {
+    width: 100%;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-size: 16px;
+    font-family: var(--font);
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    transition: opacity 0.15s;
+  }
+  .save-btn:disabled { opacity: 0.35; cursor: default; }
+  .save-btn:active:not(:disabled) { opacity: 0.85; }
+
+  /* ===== HISTORY VIEW ===== */
+  .history-view { padding: 16px; }
+
+  .history-month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+  }
+  .month-nav-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--accent);
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .month-nav-btn:active { background: var(--accent-light); }
+  .month-nav-label {
+    font-size: 16px;
+    font-family: var(--mono);
+  }
+
+  .day-group { margin-bottom: 20px; }
+  .day-header {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+    padding: 0 2px;
+  }
+  .entry-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .entry-cat { font-size: 14px; color: var(--text); }
+  .entry-right { display: flex; align-items: center; gap: 12px; }
+  .entry-amount {
+    font-family: var(--mono);
+    font-size: 15px;
+    color: var(--accent);
+  }
+  .entry-del {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+  .entry-del:active { background: #ffeee0; color: var(--danger); }
+
+  .empty-state {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 60px 20px;
+    font-size: 15px;
+  }
+
+  /* ===== SUMMARY VIEW ===== */
+  .summary-view { padding: 16px; }
+
+  .summary-month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+  }
+
+  .summary-total-card {
+    background: var(--accent);
+    color: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .summary-total-label { font-size: 12px; opacity: 0.8; margin-bottom: 4px; }
+  .summary-total-amount { font-size: 38px; font-family: var(--mono); }
+
+  .summary-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .summary-cat { font-size: 14px; }
+  .summary-amount { font-family: var(--mono); font-size: 14px; color: var(--accent); }
+  .summary-bar-wrap {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 4px;
+  }
+  .summary-bar {
+    height: 3px;
+    background: var(--accent-mid);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .export-btn {
+    width: 100%;
+    background: var(--surface);
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 15px;
+    font-size: 15px;
+    font-family: var(--font);
+    cursor: pointer;
+    margin-top: 12px;
+    letter-spacing: 0.5px;
+  }
+  .export-btn:active { background: var(--accent-light); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--accent);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 14px;
+    opacity: 0;
+    transition: all 0.25s;
+    pointer-events: none;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="app-title">Spend</div>
+    <div class="month-label" id="headerMonth"></div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchView('log')">Log</button>
+    <button class="nav-tab" onclick="switchView('history')">History</button>
+    <button class="nav-tab" onclick="switchView('summary')">Summary</button>
+  </div>
+</div>
+
+<!-- LOG VIEW -->
+<div class="view active log-view" id="view-log">
+  <div class="amount-display">
+    <div class="amount-value empty" id="amountDisplay">£0</div>
+    <div class="amount-hint">Enter amount, then pick a category</div>
+  </div>
+
+  <div class="numpad">
+    <button class="num-btn" onclick="numPress('1')">1</button>
+    <button class="num-btn" onclick="numPress('2')">2</button>
+    <button class="num-btn" onclick="numPress('3')">3</button>
+    <button class="num-btn" onclick="numPress('4')">4</button>
+    <button class="num-btn" onclick="numPress('5')">5</button>
+    <button class="num-btn" onclick="numPress('6')">6</button>
+    <button class="num-btn" onclick="numPress('7')">7</button>
+    <button class="num-btn" onclick="numPress('8')">8</button>
+    <button class="num-btn" onclick="numPress('9')">9</button>
+    <button class="num-btn dot" onclick="numPress('.')">.</button>
+    <button class="num-btn" onclick="numPress('0')">0</button>
+    <button class="num-btn del" onclick="numDel()">⌫</button>
+  </div>
+
+  <div class="section-label">Category</div>
+  <div class="cat-grid" id="catGrid"></div>
+
+  <button class="save-btn" id="saveBtn" disabled onclick="saveEntry()">Save Entry</button>
+</div>
+
+<!-- HISTORY VIEW -->
+<div class="view history-view" id="view-history">
+  <div class="history-month-nav">
+    <button class="month-nav-btn" onclick="historyNavMonth(-1)">‹</button>
+    <div class="month-nav-label" id="historyMonthLabel"></div>
+    <button class="month-nav-btn" onclick="historyNavMonth(1)">›</button>
+  </div>
+  <div id="historyContent"></div>
+</div>
+
+<!-- SUMMARY VIEW -->
+<div class="view summary-view" id="view-summary">
+  <div class="summary-month-nav">
+    <button class="month-nav-btn" onclick="summaryNavMonth(-1)">‹</button>
+    <div class="month-nav-label" id="summaryMonthLabel"></div>
+    <button class="month-nav-btn" onclick="summaryNavMonth(1)">›</button>
+  </div>
+  <div class="summary-total-card">
+    <div class="summary-total-label">Total Spent</div>
+    <div class="summary-total-amount" id="summaryTotal">£0.00</div>
+  </div>
+  <div id="summaryContent"></div>
+  <button class="export-btn" onclick="exportCSV()">Export as CSV</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CATEGORIES = [
+  "3 Eaton","Acting","Amazon Home","Amazon Me","Amazon Samm",
+  "Charity","Cleaner","Clothes Me","Clothes Samm","Eating out",
+  "Entertainment","Gardener","Gifts","Haircut","Healthcare",
+  "Holidays","Insurance","Ironing","Mells","Parking",
+  "Repairs","Snacks","Supermarket","Tesla","Train + Taxi",
+  "Webber","Window Cleaner","Working Coffee","Working Food"
+];
+
+// ---- STATE ----
+let amountStr = '';
+let selectedCat = '';
+let historyViewMonth = new Date(); // current month
+let summaryViewMonth = new Date();
+
+// ---- STORAGE ----
+function getEntries() {
+  try { return JSON.parse(localStorage.getItem('spend_entries') || '[]'); }
+  catch { return []; }
+}
+function saveEntries(arr) {
+  localStorage.setItem('spend_entries', JSON.stringify(arr));
+}
+
+// ---- INIT ----
+function init() {
+  buildCatGrid();
+  updateHeaderMonth();
+  setHistoryMonth(new Date());
+  setSummaryMonth(new Date());
+}
+
+function buildCatGrid() {
+  const grid = document.getElementById('catGrid');
+  grid.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn';
+    btn.textContent = cat;
+    btn.onclick = () => selectCat(cat);
+    btn.id = 'cat-' + cat;
+    grid.appendChild(btn);
+  });
+}
+
+function updateHeaderMonth() {
+  const now = new Date();
+  document.getElementById('headerMonth').textContent =
+    now.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+}
+
+// ---- NUMPAD ----
+function numPress(char) {
+  if (char === '.') {
+    if (amountStr.includes('.')) return;
+    if (amountStr === '') amountStr = '0';
+  }
+  // Max 2 decimal places
+  if (amountStr.includes('.')) {
+    const parts = amountStr.split('.');
+    if (parts[1].length >= 2) return;
+  }
+  // Max length guard
+  if (amountStr.replace('.','').length >= 7) return;
+  if (amountStr === '0' && char !== '.') amountStr = char;
+  else amountStr += char;
+  updateAmountDisplay();
+  updateSaveBtn();
+}
+
+function numDel() {
+  amountStr = amountStr.slice(0, -1);
+  updateAmountDisplay();
+  updateSaveBtn();
+}
+
+function updateAmountDisplay() {
+  const el = document.getElementById('amountDisplay');
+  if (!amountStr || amountStr === '0') {
+    el.textContent = '£0';
+    el.classList.add('empty');
+  } else {
+    el.textContent = '£' + amountStr;
+    el.classList.remove('empty');
+  }
+}
+
+// ---- CATEGORY ----
+function selectCat(cat) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  const btn = document.getElementById('cat-' + cat);
+  if (btn) btn.classList.add('selected');
+  selectedCat = cat;
+  updateSaveBtn();
+
+  // If amount entered, auto-save immediately
+  const val = parseFloat(amountStr);
+  if (val > 0) {
+    saveEntry();
+  }
+}
+
+function updateSaveBtn() {
+  const val = parseFloat(amountStr);
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = !(val > 0 && selectedCat);
+}
+
+// ---- SAVE ----
+function saveEntry() {
+  const val = parseFloat(amountStr);
+  if (!val || !selectedCat) return;
+
+  const entries = getEntries();
+  const now = new Date();
+  entries.push({
+    id: Date.now(),
+    date: now.toISOString().slice(0, 10), // YYYY-MM-DD
+    category: selectedCat,
+    amount: Math.round(val * 100) / 100
+  });
+  saveEntries(entries);
+
+  // Reset
+  amountStr = '';
+  selectedCat = '';
+  updateAmountDisplay();
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  updateSaveBtn();
+
+  showToast('Saved ✓');
+}
+
+// ---- HISTORY VIEW ----
+function setHistoryMonth(date) {
+  historyViewMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  renderHistory();
+}
+
+function historyNavMonth(dir) {
+  historyViewMonth = new Date(historyViewMonth.getFullYear(), historyViewMonth.getMonth() + dir, 1);
+  renderHistory();
+}
+
+function renderHistory() {
+  const label = historyViewMonth.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+  document.getElementById('historyMonthLabel').textContent = label;
+
+  const y = historyViewMonth.getFullYear();
+  const m = historyViewMonth.getMonth();
+  const entries = getEntries().filter(e => {
+    const d = new Date(e.date);
+    return d.getFullYear() === y && d.getMonth() === m;
+  });
+
+  const content = document.getElementById('historyContent');
+  if (entries.length === 0) {
+    content.innerHTML = '<div class="empty-state">No entries this month</div>';
+    return;
+  }
+
+  // Group by date descending
+  const groups = {};
+  entries.forEach(e => {
+    if (!groups[e.date]) groups[e.date] = [];
+    groups[e.date].push(e);
+  });
+  const dates = Object.keys(groups).sort((a,b) => b.localeCompare(a));
+
+  content.innerHTML = dates.map(date => {
+    const d = new Date(date + 'T00:00:00');
+    const dayLabel = d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
+    const rows = groups[date].map(e => `
+      <div class="entry-row">
+        <div class="entry-cat">${e.category}</div>
+        <div class="entry-right">
+          <div class="entry-amount">£${e.amount.toFixed(2)}</div>
+          <button class="entry-del" onclick="deleteEntry(${e.id})">✕</button>
+        </div>
+      </div>
+    `).join('');
+    return `<div class="day-group">
+      <div class="day-header">${dayLabel}</div>
+      ${rows}
+    </div>`;
+  }).join('');
+}
+
+function deleteEntry(id) {
+  let entries = getEntries();
+  entries = entries.filter(e => e.id !== id);
+  saveEntries(entries);
+  renderHistory();
+  showToast('Deleted');
+}
+
+// ---- SUMMARY VIEW ----
+function setSummaryMonth(date) {
+  summaryViewMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  renderSummary();
+}
+
+function summaryNavMonth(dir) {
+  summaryViewMonth = new Date(summaryViewMonth.getFullYear(), summaryViewMonth.getMonth() + dir, 1);
+  renderSummary();
+}
+
+function renderSummary() {
+  const label = summaryViewMonth.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+  document.getElementById('summaryMonthLabel').textContent = label;
+
+  const y = summaryViewMonth.getFullYear();
+  const m = summaryViewMonth.getMonth();
+  const entries = getEntries().filter(e => {
+    const d = new Date(e.date);
+    return d.getFullYear() === y && d.getMonth() === m;
+  });
+
+  // Tally by category (alphabetical)
+  const totals = {};
+  entries.forEach(e => {
+    totals[e.category] = (totals[e.category] || 0) + e.amount;
+  });
+
+  const cats = Object.keys(totals).sort((a,b) => a.localeCompare(b));
+  const grandTotal = cats.reduce((s, c) => s + totals[c], 0);
+  const maxVal = cats.length ? Math.max(...cats.map(c => totals[c])) : 1;
+
+  document.getElementById('summaryTotal').textContent = '£' + grandTotal.toFixed(2);
+
+  const content = document.getElementById('summaryContent');
+  if (cats.length === 0) {
+    content.innerHTML = '<div class="empty-state">No entries this month</div>';
+    return;
+  }
+
+  content.innerHTML = cats.map(cat => {
+    const pct = Math.round((totals[cat] / maxVal) * 100);
+    return `<div class="summary-row">
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="summary-cat">${cat}</div>
+          <div class="summary-amount">£${totals[cat].toFixed(2)}</div>
+        </div>
+        <div class="summary-bar-wrap">
+          <div class="summary-bar" style="width:${pct}%"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ---- EXPORT CSV ----
+function exportCSV() {
+  const y = summaryViewMonth.getFullYear();
+  const m = summaryViewMonth.getMonth();
+  const entries = getEntries().filter(e => {
+    const d = new Date(e.date);
+    return d.getFullYear() === y && d.getMonth() === m;
+  });
+
+  const totals = {};
+  entries.forEach(e => {
+    totals[e.category] = (totals[e.category] || 0) + e.amount;
+  });
+  const cats = Object.keys(totals).sort((a,b) => a.localeCompare(b));
+  const grandTotal = cats.reduce((s,c) => s + totals[c], 0);
+
+  const monthStr = summaryViewMonth.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+  let csv = `Category,Amount (GBP)\n`;
+  cats.forEach(c => { csv += `"${c}",${totals[c].toFixed(2)}\n`; });
+  csv += `\nTOTAL,${grandTotal.toFixed(2)}\n`;
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `spend-${y}-${String(m+1).padStart(2,'0')}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exported ✓');
+}
+
+// ---- VIEW SWITCHING ----
+function switchView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'history') renderHistory();
+  if (name === 'summary') renderSummary();
+}
+
+// ---- TOAST ----
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+init();
+</script>
+</body>
+</html>
