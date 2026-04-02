@@ -8,12 +8,13 @@
 <title>Spend</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
 :root {
   --bg:#F5F4F0; --surface:#FFFFFF; --border:rgba(0,0,0,0.08); --border-md:rgba(0,0,0,0.14);
   --ink:#1C1C1A; --ink2:#6B6B66; --ink3:#ABABAB;
   --green:#1A7A4A; --green-bg:#EBF5EE; --green-mid:#52A878;
-  --blue:#1A4E7A; --blue-bg:#EBF2F9; --blue-mid:#5288B0; --blue-border:#1A4E7A;
+  --blue:#1A4E7A; --blue-bg:#EBF2F9; --blue-mid:#5288B0;
+  --amber:#7A5200; --amber-bg:#FFF8EB; --amber-border:rgba(122,82,0,0.25);
   --red:#C0392B;
   --sans:'DM Sans',system-ui,sans-serif; --mono:'DM Mono',monospace;
   --r:14px; --rs:10px;
@@ -52,18 +53,23 @@ body { font-family:var(--sans); background:var(--bg); color:var(--ink); min-heig
 .nk.del { font-size:18px; color:var(--ink2); }
 .nk.dot { font-size:30px; line-height:0; padding-bottom:4px; }
 
+/* RECHARGE TOGGLE */
+.recharge-toggle { display:flex; gap:7px; margin-bottom:14px; }
+.rt-btn { flex:1; height:44px; border-radius:var(--rs); font-family:var(--sans); font-size:13px; font-weight:400; cursor:pointer; transition:all .12s; border:1px solid var(--border-md); background:var(--surface); color:var(--ink2); }
+.rt-btn.rt-active-yes { background:var(--blue-bg); border-color:var(--blue); color:var(--blue); font-weight:500; }
+.rt-btn.rt-active-no  { background:#FFF3F2; border-color:rgba(192,57,43,0.35); color:var(--red); font-weight:500; }
+.rt-btn:active { transform:scale(0.97); }
+
 /* CATEGORIES */
 .sec-lbl { font-size:10px; font-family:var(--mono); text-transform:uppercase; letter-spacing:1.2px; color:var(--ink3); margin-bottom:9px; }
 .cat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-bottom:18px; }
+.cat-grid-w { grid-template-columns:repeat(2,1fr); }
 .ck { background:var(--surface); border:1px solid var(--border); border-radius:var(--rs); padding:11px 6px; font-family:var(--sans); font-size:13.5px; font-weight:400; color:var(--ink2); cursor:pointer; text-align:center; line-height:1.3; min-height:52px; display:flex; align-items:center; justify-content:center; transition:all .12s; user-select:none; -webkit-user-select:none; }
 .ck.ck-p:active { background:var(--green-bg); color:var(--green); }
 .ck.ck-p.sel { background:var(--green-bg); border-color:var(--green); color:var(--green); font-weight:500; }
 .ck.ck-w { color:var(--blue); border-color:rgba(26,78,122,0.18); }
 .ck.ck-w:active { background:var(--blue-bg); color:var(--blue); }
 .ck.ck-w.sel { background:var(--blue-bg); border-color:var(--blue); color:var(--blue); font-weight:500; }
-
-/* work cat grid — 2 cols since fewer items */
-.cat-grid-w { grid-template-columns:repeat(2,1fr); }
 
 /* SAVE */
 .save-btn { width:100%; border:none; border-radius:var(--r); height:54px; font-family:var(--sans); font-size:15px; font-weight:500; cursor:pointer; transition:opacity .15s,transform .08s; }
@@ -75,63 +81,67 @@ body { font-family:var(--sans); background:var(--bg); color:var(--ink); min-heig
 /* MONTH NAV */
 .mnav { display:flex; align-items:center; justify-content:space-between; background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:10px 6px; margin-bottom:16px; }
 .mnav-btn { background:none; border:none; width:38px; height:38px; border-radius:8px; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-.mnav-btn.mb-p { color:var(--green); }
-.mnav-btn.mb-p:active { background:var(--green-bg); }
-.mnav-btn.mb-w { color:var(--blue); }
-.mnav-btn.mb-w:active { background:var(--blue-bg); }
+.mnav-btn.mb-p { color:var(--green); } .mnav-btn.mb-p:active { background:var(--green-bg); }
+.mnav-btn.mb-w { color:var(--blue); } .mnav-btn.mb-w:active { background:var(--blue-bg); }
 .mnav-lbl { font-family:var(--mono); font-size:14px; color:var(--ink); }
 
 /* HISTORY */
 .day-block { margin-bottom:18px; }
 .day-lbl { font-size:10px; font-family:var(--mono); text-transform:uppercase; letter-spacing:1px; color:var(--ink3); margin-bottom:6px; padding-left:2px; }
 .entry { background:var(--surface); border:1px solid var(--border); border-radius:var(--rs); padding:12px 14px; display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; }
+.entry-left { display:flex; flex-direction:column; gap:3px; }
 .entry-cat { font-size:14px; color:var(--ink); }
+.entry-tags { display:flex; gap:5px; }
+.tag { font-size:10px; font-family:var(--mono); padding:2px 7px; border-radius:4px; }
+.tag-work { background:var(--blue-bg); color:var(--blue); }
+.tag-rech { background:#EBF5EE; color:var(--green); }
+.tag-norech { background:#FFF3F2; color:var(--red); }
 .entry-r { display:flex; align-items:center; gap:10px; }
 .entry-amt { font-family:var(--mono); font-size:14px; font-weight:500; }
-.entry-amt.ea-p { color:var(--green); }
-.entry-amt.ea-w { color:var(--blue); }
-.entry-x { background:none; border:none; color:var(--ink3); font-size:14px; width:28px; height:28px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .1s,color .1s; }
+.ea-p { color:var(--green); } .ea-w { color:var(--blue); }
+.entry-x { background:none; border:none; color:var(--ink3); font-size:14px; width:28px; height:28px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 .entry-x:active { background:#FDE8E6; color:var(--red); }
 
-/* SUMMARY */
-.total-card { border-radius:var(--r); padding:20px 22px; margin-bottom:14px; display:flex; align-items:flex-end; justify-content:space-between; }
-.total-card.tc-p { background:var(--green); }
-.total-card.tc-w { background:var(--blue); }
+/* SUMMARY CARDS */
+.sum-card-group { margin-bottom:6px; }
+.total-card { border-radius:var(--r); padding:18px 22px; margin-bottom:5px; display:flex; align-items:flex-end; justify-content:space-between; }
+.total-card.tc-p  { background:var(--green); }
+.total-card.tc-wr { background:var(--blue); }
+.total-card.tc-wn { background:#5C4033; }
+.total-card.tc-wt { background:#2C3E50; }
 .total-lbl { font-size:11px; color:rgba(255,255,255,.65); letter-spacing:.3px; margin-bottom:4px; }
-.total-amt { font-family:var(--mono); font-size:36px; font-weight:500; color:#fff; letter-spacing:-1.5px; line-height:1; }
+.total-amt { font-family:var(--mono); font-size:32px; font-weight:500; color:#fff; letter-spacing:-1.5px; line-height:1; }
 .total-meta { font-family:var(--mono); font-size:11px; color:rgba(255,255,255,.6); text-align:right; line-height:1.8; }
+
+.sum-section-lbl { font-size:10px; font-family:var(--mono); text-transform:uppercase; letter-spacing:1.2px; color:var(--ink3); margin:16px 0 8px 2px; }
 .sum-row { background:var(--surface); border:1px solid var(--border); border-radius:var(--rs); padding:11px 14px; margin-bottom:5px; }
 .sum-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:5px; }
 .sum-cat { font-size:13px; color:var(--ink); }
 .sum-amt { font-family:var(--mono); font-size:13px; font-weight:500; }
-.sum-amt.sa-p { color:var(--green); }
-.sum-amt.sa-w { color:var(--blue); }
+.sa-p { color:var(--green); } .sa-wr { color:var(--blue); } .sa-wn { color:#5C4033; }
 .bar-t { height:3px; background:var(--border); border-radius:2px; }
 .bar-f { height:3px; border-radius:2px; transition:width .5s ease; }
-.bar-f.bf-p { background:var(--green-mid); }
-.bar-f.bf-w { background:var(--blue-mid); }
+.bf-p { background:var(--green-mid); } .bf-wr { background:var(--blue-mid); } .bf-wn { background:#9C7B6E; }
 
-.export-btn { width:100%; background:var(--surface); border:1px solid var(--border-md); border-radius:var(--r); height:50px; font-family:var(--sans); font-size:14px; font-weight:500; cursor:pointer; margin-top:14px; transition:background .12s; }
-.export-btn.eb-p { color:var(--green); }
-.export-btn.eb-p:active { background:var(--green-bg); }
-.export-btn.eb-w { color:var(--blue); }
-.export-btn.eb-w:active { background:var(--blue-bg); }
+/* EXPORT / BACKUP */
+.export-btn { width:100%; background:var(--surface); border:1px solid var(--border-md); border-radius:var(--r); height:50px; font-family:var(--sans); font-size:14px; font-weight:500; cursor:pointer; margin-top:8px; transition:background .12s; }
+.eb-p  { color:var(--green); } .eb-p:active  { background:var(--green-bg); }
+.eb-wr { color:var(--blue);  } .eb-wr:active { background:var(--blue-bg); }
+.eb-wn { color:#5C4033;     } .eb-wn:active { background:#FBF5F2; }
 
-/* BACKUP BANNER */
 .backup-banner { background:#FFFBEB; border:1px solid rgba(180,140,0,0.2); border-radius:var(--rs); padding:11px 14px; display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; gap:10px; }
 .backup-banner.hidden { display:none; }
-.bb-text { font-size:12px; color:#7A5C00; line-height:1.4; }
+.bb-text { font-size:12px; color:#7A5C00; line-height:1.4; flex:1; }
 .bb-btn { background:#7A5C00; color:#fff; border:none; border-radius:8px; padding:7px 13px; font-family:var(--sans); font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap; flex-shrink:0; }
 .bb-dismiss { background:none; border:none; color:#ABABAB; font-size:16px; cursor:pointer; flex-shrink:0; padding:2px 4px; }
 
-/* BACKUP / RESTORE section */
 .backup-section { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:16px; margin-top:14px; }
 .bs-title { font-size:12px; font-family:var(--mono); text-transform:uppercase; letter-spacing:1px; color:var(--ink3); margin-bottom:12px; }
 .bs-row { display:flex; gap:8px; }
-.bs-btn { flex:1; background:var(--bg); border:1px solid var(--border-md); border-radius:var(--rs); height:44px; font-family:var(--sans); font-size:13px; font-weight:500; color:var(--ink2); cursor:pointer; transition:background .12s; }
+.bs-btn { flex:1; background:var(--bg); border:1px solid var(--border-md); border-radius:var(--rs); height:44px; font-family:var(--sans); font-size:13px; font-weight:500; color:var(--ink2); cursor:pointer; }
 .bs-btn:active { background:#E8E6E0; }
 
-.empty { text-align:center; color:var(--ink3); padding:60px 20px; font-size:14px; line-height:1.7; }
+.empty { text-align:center; color:var(--ink3); padding:40px 20px; font-size:14px; line-height:1.7; }
 .toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(14px); background:var(--ink); color:#fff; padding:10px 22px; border-radius:30px; font-size:13px; opacity:0; pointer-events:none; transition:opacity .2s,transform .2s; z-index:999; white-space:nowrap; }
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 </style>
@@ -144,10 +154,10 @@ body { font-family:var(--sans); background:var(--bg); color:var(--ink); min-heig
     <div class="hmonth" id="hdrM"></div>
   </div>
   <div class="tabs">
-    <button class="tab active-p" id="tab-plog"   onclick="goto('plog',this)">Personal</button>
-    <button class="tab"          id="tab-wlog"   onclick="goto('wlog',this)">Work</button>
-    <button class="tab"          id="tab-history" onclick="goto('history',this)">History</button>
-    <button class="tab"          id="tab-summary" onclick="goto('summary',this)">Summary</button>
+    <button class="tab active-p" onclick="goto('plog',this)">Personal</button>
+    <button class="tab"          onclick="goto('wlog',this)">Work</button>
+    <button class="tab"          onclick="goto('history',this)">History</button>
+    <button class="tab"          onclick="goto('summary',this)">Summary</button>
   </div>
 </div>
 
@@ -180,6 +190,13 @@ body { font-family:var(--sans); background:var(--bg); color:var(--ink); min-heig
     <div class="amount-sub">enter amount · tap a category to save</div>
   </div>
   <div class="numpad" id="wNumpad"></div>
+
+  <div class="sec-lbl">Recharge type</div>
+  <div class="recharge-toggle">
+    <button class="rt-btn rt-active-yes" id="rtYes" onclick="setRecharge(true)">Rechargeable</button>
+    <button class="rt-btn" id="rtNo" onclick="setRecharge(false)">Non-rechargeable</button>
+  </div>
+
   <div class="sec-lbl">Work Category</div>
   <div class="cat-grid cat-grid-w" id="wCatGrid"></div>
   <button class="save-btn sb-w" id="wSaveBtn" disabled onclick="doSave('w')">Save</button>
@@ -203,26 +220,43 @@ body { font-family:var(--sans); background:var(--bg); color:var(--ink); min-heig
     <button class="mnav-btn mb-p" onclick="sNav(1)">›</button>
   </div>
 
-  <!-- Personal summary -->
+  <!-- Personal -->
   <div class="total-card tc-p">
     <div><div class="total-lbl">Personal total</div><div class="total-amt" id="pTotal">£0.00</div></div>
     <div class="total-meta" id="pMeta"></div>
   </div>
   <div id="pSumContent"></div>
 
-  <div style="height:20px"></div>
+  <div style="height:10px"></div>
 
-  <!-- Work summary -->
-  <div class="total-card tc-w">
-    <div><div class="total-lbl">Work total</div><div class="total-amt" id="wTotal">£0.00</div></div>
-    <div class="total-meta" id="wMeta"></div>
+  <!-- Work rechargeable -->
+  <div class="total-card tc-wr">
+    <div><div class="total-lbl">Work — rechargeable</div><div class="total-amt" id="wrTotal">£0.00</div></div>
+    <div class="total-meta" id="wrMeta"></div>
   </div>
-  <div id="wSumContent"></div>
+  <div id="wrSumContent"></div>
 
-  <button class="export-btn eb-p" onclick="doExport('p')" style="margin-top:14px">Export Personal CSV</button>
-  <button class="export-btn eb-w" onclick="doExport('w')" style="margin-top:8px">Export Work CSV</button>
+  <div style="height:10px"></div>
 
-  <!-- Backup -->
+  <!-- Work non-rechargeable -->
+  <div class="total-card tc-wn">
+    <div><div class="total-lbl">Work — non-rechargeable</div><div class="total-amt" id="wnTotal">£0.00</div></div>
+    <div class="total-meta" id="wnMeta"></div>
+  </div>
+  <div id="wnSumContent"></div>
+
+  <div style="height:10px"></div>
+
+  <!-- Work combined -->
+  <div class="total-card tc-wt">
+    <div><div class="total-lbl">Work total (all)</div><div class="total-amt" id="wtTotal">£0.00</div></div>
+    <div class="total-meta" id="wtMeta"></div>
+  </div>
+
+  <button class="export-btn eb-p"  onclick="doExport('p')"  style="margin-top:14px">Export Personal CSV</button>
+  <button class="export-btn eb-wr" onclick="doExport('wr')" style="margin-top:8px">Export Work Rechargeable CSV</button>
+  <button class="export-btn eb-wn" onclick="doExport('wn')" style="margin-top:8px">Export Work Non-rechargeable CSV</button>
+
   <div class="backup-section">
     <div class="bs-title">Data backup</div>
     <div class="bs-row">
@@ -230,7 +264,7 @@ body { font-family:var(--sans); background:var(--bg); color:var(--ink); min-heig
       <button class="bs-btn" onclick="triggerRestore()">Restore from file</button>
     </div>
     <input type="file" id="restoreInput" accept=".json" style="display:none" onchange="doRestore(event)">
-    <div style="font-size:11px;color:var(--ink3);margin-top:10px;line-height:1.6">Backup saves all data as a JSON file. Email it to yourself for safekeeping. Restore loads it back if you ever need to.</div>
+    <div style="font-size:11px;color:var(--ink3);margin-top:10px;line-height:1.6">Backup saves all data as a JSON file. Email it to yourself for safekeeping. Restore loads it back if needed.</div>
   </div>
 </div>
 
@@ -240,12 +274,15 @@ body { font-family:var(--sans); background:var(--bg); color:var(--ink); min-heig
 const P_CATS = ["Acting","Amazon Home","Amazon Me","Amazon S","BTL","Charity","Cleaner","Clothes Me","Clothes S","Eating out","Entertainment","Gardener","Gifts","Haircut","Healthcare","Holidays","Insurance","Ironing","Mells","Parking","Repairs","Snacks","Supermarket","Tesla","Train + Taxi","Webber","Window Cleaner","Working Coffee","Working Food"];
 const W_CATS = ["Food & Drink","Hotels","Stuff","Travel"];
 
-const state = { p: { amt:'', sel:'' }, w: { amt:'', sel:'' } };
+const state = {
+  p: { amt:'', sel:'' },
+  w: { amt:'', sel:'', rechargeable: true }
+};
 let hM = new Date(), sM = new Date();
 
-const db   = () => { try { return JSON.parse(localStorage.getItem('sx4')||'[]'); } catch { return []; } };
-const setDb = a => localStorage.setItem('sx4', JSON.stringify(a));
-const fmt   = d => d.toLocaleString('en-GB',{month:'long',year:'numeric'});
+const db    = () => { try { return JSON.parse(localStorage.getItem('sx5')||'[]'); } catch { return []; } };
+const setDb = a  => localStorage.setItem('sx5', JSON.stringify(a));
+const fmt   = d  => d.toLocaleString('en-GB',{month:'long',year:'numeric'});
 const today = () => new Date().toISOString().slice(0,10);
 
 /* ── INIT ── */
@@ -255,19 +292,17 @@ function init() {
   buildNumpad('wNumpad','w');
   buildCats('pCatGrid', P_CATS, 'p');
   buildCats('wCatGrid', W_CATS, 'w');
-  setHM(new Date());
-  setSM(new Date());
+  setHM(new Date()); setSM(new Date());
   checkBackupBanner();
 }
 
 function buildNumpad(id, mode) {
   const g = document.getElementById(id);
-  ['1','2','3','4','5','6','7','8','9','.','0','⌫'].forEach((ch,i) => {
+  ['1','2','3','4','5','6','7','8','9','.','0','⌫'].forEach(ch => {
     const b = document.createElement('button');
-    b.className = 'nk nk-'+mode + (ch==='⌫'?' del':ch==='.'?' dot':'');
+    b.className = 'nk nk-'+mode+(ch==='⌫'?' del':ch==='.'?' dot':'');
     b.textContent = ch==='.'?'·':ch;
-    if (ch==='⌫') b.onclick = () => nd(mode);
-    else b.onclick = () => nk(mode, ch==='·'?'.':ch);
+    b.onclick = ch==='⌫' ? ()=>nd(mode) : ()=>nk(mode, ch==='·'?'.':ch);
     g.appendChild(b);
   });
 }
@@ -284,6 +319,13 @@ function buildCats(id, cats, mode) {
   });
 }
 
+/* ── RECHARGE TOGGLE ── */
+function setRecharge(val) {
+  state.w.rechargeable = val;
+  document.getElementById('rtYes').className = 'rt-btn' + (val  ? ' rt-active-yes' : '');
+  document.getElementById('rtNo').className  = 'rt-btn' + (!val ? ' rt-active-no'  : '');
+}
+
 /* ── NUMPAD ── */
 function nk(mode, ch) {
   let a = state[mode].amt;
@@ -292,8 +334,7 @@ function nk(mode, ch) {
   if (a.includes('.') && a.split('.')[1].length>=2) return;
   if (a.replace('.','').length>=7) return;
   if (a==='0' && ch!=='.') a=ch; else a+=ch;
-  state[mode].amt = a;
-  updAmt(mode);
+  state[mode].amt = a; updAmt(mode);
 }
 function nd(mode) { state[mode].amt = state[mode].amt.slice(0,-1); updAmt(mode); }
 function updAmt(mode) {
@@ -320,14 +361,21 @@ function pick(mode, cat) {
 function doSave(mode) {
   const v = parseFloat(state[mode].amt);
   if (!v || !state[mode].sel) return;
-  const all = db();
-  all.push({ id:Date.now(), date:today(), category:state[mode].sel, amount:Math.round(v*100)/100, type:mode });
-  setDb(all);
+  const entry = {
+    id: Date.now(),
+    date: today(),
+    category: state[mode].sel,
+    amount: Math.round(v*100)/100,
+    type: mode
+  };
+  if (mode==='w') entry.rechargeable = state.w.rechargeable;
+  const all = db(); all.push(entry); setDb(all);
   state[mode].amt=''; state[mode].sel='';
-  const el = document.getElementById(mode+'AmtD');
-  el.textContent='£0'; el.className='amount-num';
+  const el=document.getElementById(mode+'AmtD'); el.textContent='£0'; el.className='amount-num';
   document.querySelectorAll('.ck-'+mode).forEach(b=>b.classList.remove('sel'));
   document.getElementById(mode+'SaveBtn').disabled=true;
+  // reset recharge toggle back to default (rechargeable)
+  if (mode==='w') setRecharge(true);
   toast('Saved ✓');
 }
 
@@ -347,12 +395,24 @@ function renderH() {
     const d=new Date(dt+'T00:00:00');
     const lbl=d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
     return `<div class="day-block"><div class="day-lbl">${lbl}</div>${
-      grp[dt].map(e=>`<div class="entry">
-        <div class="entry-cat">${e.category}<span style="font-size:10px;color:var(--ink3);margin-left:6px;font-family:var(--mono)">${e.type==='w'?'work':''}</span></div>
-        <div class="entry-r">
-          <div class="entry-amt ea-${e.type||'p'}">£${e.amount.toFixed(2)}</div>
-          <button class="entry-x" onclick="delEntry(${e.id})">✕</button>
-        </div></div>`).join('')
+      grp[dt].map(e=>{
+        const isWork = e.type==='w';
+        const tags = isWork
+          ? `<div class="entry-tags">
+               <span class="tag tag-work">work</span>
+               <span class="tag ${e.rechargeable===false?'tag-norech':'tag-rech'}">${e.rechargeable===false?'non-rech':'rechargeable'}</span>
+             </div>`
+          : '';
+        return `<div class="entry">
+          <div class="entry-left">
+            <div class="entry-cat">${e.category}</div>
+            ${tags}
+          </div>
+          <div class="entry-r">
+            <div class="entry-amt ea-${isWork?'w':'p'}">£${e.amount.toFixed(2)}</div>
+            <button class="entry-x" onclick="delEntry(${e.id})">✕</button>
+          </div></div>`;
+      }).join('')
     }</div>`;
   }).join('');
 }
@@ -365,82 +425,95 @@ function renderS() {
   document.getElementById('sLbl').textContent = fmt(sM);
   const y=sM.getFullYear(), m=sM.getMonth();
   const all = db().filter(e=>{const d=new Date(e.date);return d.getFullYear()===y&&d.getMonth()===m;});
-  renderSummaryBlock(all.filter(e=>(e.type||'p')==='p'), 'p');
-  renderSummaryBlock(all.filter(e=>e.type==='w'), 'w');
+  // personal
+  renderBlock(all.filter(e=>(e.type||'p')==='p'), 'p',  'pTotal',  'pMeta',  'pSumContent');
+  // work rechargeable (default true for old entries without the flag)
+  renderBlock(all.filter(e=>e.type==='w' && e.rechargeable!==false), 'wr', 'wrTotal', 'wrMeta', 'wrSumContent');
+  // work non-rechargeable
+  renderBlock(all.filter(e=>e.type==='w' && e.rechargeable===false),  'wn', 'wnTotal', 'wnMeta', 'wnSumContent');
+  // work combined
+  const wAll = all.filter(e=>e.type==='w');
+  const wGrand = wAll.reduce((s,e)=>s+e.amount,0);
+  document.getElementById('wtTotal').textContent = '£'+wGrand.toFixed(2);
+  document.getElementById('wtMeta').textContent = wAll.length+' transaction'+(wAll.length===1?'':'s');
 }
-function renderSummaryBlock(rows, mode) {
+
+function renderBlock(rows, colorKey, totalId, metaId, contentId) {
   const tots={};
   rows.forEach(e=>{ tots[e.category]=(tots[e.category]||0)+e.amount; });
   const cats=Object.keys(tots).sort((a,b)=>a.localeCompare(b));
   const grand=cats.reduce((s,c)=>s+tots[c],0);
   const mx=cats.length?Math.max(...cats.map(c=>tots[c])):1;
-  document.getElementById(mode+'Total').textContent='£'+grand.toFixed(2);
-  document.getElementById(mode+'Meta').textContent=rows.length+' transaction'+(rows.length===1?'':'s');
-  const el=document.getElementById(mode+'SumContent');
-  if (!cats.length) { el.innerHTML='<div class="empty" style="padding:20px">No entries.</div>'; return; }
+  document.getElementById(totalId).textContent='£'+grand.toFixed(2);
+  document.getElementById(metaId).textContent=rows.length+' transaction'+(rows.length===1?'':'s');
+  const el=document.getElementById(contentId);
+  if (!cats.length) { el.innerHTML='<div class="empty" style="padding:16px 0">No entries.</div>'; return; }
   el.innerHTML=cats.map(c=>{
     const pct=Math.round((tots[c]/mx)*100);
     return `<div class="sum-row">
-      <div class="sum-top"><div class="sum-cat">${c}</div><div class="sum-amt sa-${mode}">£${tots[c].toFixed(2)}</div></div>
-      <div class="bar-t"><div class="bar-f bf-${mode}" style="width:${pct}%"></div></div>
+      <div class="sum-top"><div class="sum-cat">${c}</div><div class="sum-amt sa-${colorKey}">£${tots[c].toFixed(2)}</div></div>
+      <div class="bar-t"><div class="bar-f bf-${colorKey}" style="width:${pct}%"></div></div>
     </div>`;
   }).join('');
 }
 
-/* ── EXPORT CSV ── */
+/* ── EXPORT ── */
 function doExport(mode) {
   const y=sM.getFullYear(), m=sM.getMonth();
-  const rows=db().filter(e=>{const d=new Date(e.date);return d.getFullYear()===y&&d.getMonth()===m&&(e.type||'p')===mode;});
+  const all = db().filter(e=>{const d=new Date(e.date);return d.getFullYear()===y&&d.getMonth()===m;});
+  let rows, label, fname;
+  if (mode==='p') {
+    rows=all.filter(e=>(e.type||'p')==='p'); label='Personal Expenses';
+    fname=`spend-personal-${y}-${String(m+1).padStart(2,'0')}.csv`;
+  } else if (mode==='wr') {
+    rows=all.filter(e=>e.type==='w'&&e.rechargeable!==false); label='Work Expenses — Rechargeable';
+    fname=`spend-work-rechargeable-${y}-${String(m+1).padStart(2,'0')}.csv`;
+  } else {
+    rows=all.filter(e=>e.type==='w'&&e.rechargeable===false); label='Work Expenses — Non-rechargeable';
+    fname=`spend-work-non-rechargeable-${y}-${String(m+1).padStart(2,'0')}.csv`;
+  }
   const tots={};
   rows.forEach(e=>{tots[e.category]=(tots[e.category]||0)+e.amount;});
   const cats=Object.keys(tots).sort((a,b)=>a.localeCompare(b));
   const grand=cats.reduce((s,c)=>s+tots[c],0);
-  let csv=(mode==='p'?'Personal':'Work')+' Expenses\nCategory,Amount (GBP)\n';
+  let csv=label+'\nCategory,Amount (GBP)\n';
   cats.forEach(c=>{csv+=`"${c}",${tots[c].toFixed(2)}\n`;});
   csv+=`\nTOTAL,${grand.toFixed(2)}\n`;
-  dl(new Blob([csv],{type:'text/csv'}), `spend-${mode==='p'?'personal':'work'}-${y}-${String(m+1).padStart(2,'0')}.csv`);
+  dl(new Blob([csv],{type:'text/csv'}), fname);
   toast('CSV downloaded');
 }
 
 /* ── BACKUP / RESTORE ── */
 function doBackup() {
-  const payload = { version:1, exported: new Date().toISOString(), entries: db() };
+  const payload={version:1, exported:new Date().toISOString(), entries:db()};
   dl(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}), `spend-backup-${today()}.json`);
-  localStorage.setItem('sx4_lastbackup', today());
+  localStorage.setItem('sx5_lastbackup', today());
   hideBanners();
   toast('Backup downloaded — email it to yourself!');
 }
 function triggerRestore() { document.getElementById('restoreInput').click(); }
 function doRestore(ev) {
-  const file = ev.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
+  const file=ev.target.files[0]; if (!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
     try {
-      const data = JSON.parse(e.target.result);
-      const entries = data.entries || data; // support both formats
-      if (!Array.isArray(entries)) throw new Error('Bad format');
-      setDb(entries);
-      renderH(); renderS();
+      const data=JSON.parse(e.target.result);
+      const entries=data.entries||data;
+      if (!Array.isArray(entries)) throw new Error();
+      setDb(entries); renderH(); renderS();
       toast('Restored '+entries.length+' entries ✓');
     } catch { toast('Could not read backup file'); }
   };
   reader.readAsText(file);
   ev.target.value='';
 }
-
 function checkBackupBanner() {
-  const last = localStorage.getItem('sx4_lastbackup');
-  const t = today();
-  if (last === t) return; // already backed up today
-  const entries = db();
-  if (!entries.length) return; // nothing to back up
-  // Only show if there are work entries (they're more important)
-  const hasWork = entries.some(e=>e.type==='w');
-  if (hasWork) {
-    document.getElementById('wBanner').classList.remove('hidden');
-  } else {
-    document.getElementById('pBanner').classList.remove('hidden');
-  }
+  const last=localStorage.getItem('sx5_lastbackup');
+  if (last===today()) return;
+  const entries=db(); if (!entries.length) return;
+  const hasWork=entries.some(e=>e.type==='w');
+  if (hasWork) document.getElementById('wBanner').classList.remove('hidden');
+  else document.getElementById('pBanner').classList.remove('hidden');
 }
 function hideBanners() {
   document.getElementById('pBanner').classList.add('hidden');
@@ -450,28 +523,20 @@ function dismissBanner(mode) { document.getElementById(mode+'Banner').classList.
 
 /* ── HELPERS ── */
 function dl(blob, name) {
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob); a.download=name; a.click();
-  URL.revokeObjectURL(a.href);
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href);
 }
-
-/* ── VIEW SWITCHING ── */
-const TAB_MODES = { plog:'p', wlog:'p', history:'p', summary:'p' };
 function goto(name, btn) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active-p','active-w'));
   document.getElementById('view-'+name).classList.add('active');
-  const isWork = name==='wlog';
-  btn.classList.add(isWork ? 'active-w' : 'active-p');
-  const logo = document.getElementById('logoEl');
-  logo.innerHTML = isWork ? 'spend<em class="w">.</em>' : 'spend<em class="p">.</em>';
+  const isWork=name==='wlog';
+  btn.classList.add(isWork?'active-w':'active-p');
+  document.getElementById('logoEl').innerHTML=isWork?'spend<em class="w">.</em>':'spend<em class="p">.</em>';
   if (name==='history') renderH();
   if (name==='summary') renderS();
 }
-
 function toast(msg) {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
   clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800);
 }
 
